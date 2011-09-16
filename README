@@ -1,0 +1,5 @@
+Provides a simple spotlight effect on an element in the DOM.
+
+Original plugin was created by Gilbert Pellegrom. I have tweaked this version to iron out some bugs and continue maintenance of this plugin.
+
+Licensed under the GPL license (http://www.gnu.org/licenses/gpl-3.0.html)
