@@ -35,7 +35,7 @@
                 'top':'0px', 
                 'left':'0px', 
                 'height': $(document).height() + 'px',
-                'width': $(document).height() + 'px',
+                'width': $(document).width() + 'px',
                 'z-index':'9998'
             };
 
