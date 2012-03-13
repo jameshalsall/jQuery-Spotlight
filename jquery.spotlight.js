@@ -34,8 +34,8 @@
                 'background':settings.color, 
                 'top':'0px', 
                 'left':'0px', 
-                'height':'100%', 
-                'width':'100%', 
+                'height': $(document).height() + 'px',
+                'width': $(document).height() + 'px',
                 'z-index':'9998'
             };
 
