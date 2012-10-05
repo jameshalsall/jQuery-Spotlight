@@ -18,28 +18,29 @@
                     easing: '',
                     exitEvent: 'click',
                     onShow: function(){},
-                    onHide: function(){}
+                    onHide: function(){},
+                    spotlightZIndex: 9999
             }, options);
 
             // Add the overlay div
-            $('body').append('<div id="spotlight"></div>');
+            var spotlight = $('<div></div>');
+            $('body').append(spotlight);
 
             // Get our elements
             var element = $(this);
-            var spotlight = $('#spotlight');
 
             // Set the CSS styles
             var cssConfig = {
-                'position':'absolute', 
-                'background':settings.color, 
-                'top':'0px', 
-                'left':'0px', 
-                'height': $(document).height() + 'px',
-                'width': $(document).width() + 'px',
-                'z-index':'9998'
+                position: 'fixed', 
+                backgroundColor: settings.color, 
+                top: 0, 
+                left: 0, 
+                height: '100%',
+                width: '100%',
+                zIndex: settings.spotlightZIndex - 1
             };
 
-            if(jQuery.support.opacity) {
+            if (jQuery.support.opacity) {
                 cssConfig['opacity'] = '0';
             } else {
                 cssConfig['filter'] = 'alpha(opacity=0)';
@@ -53,14 +54,25 @@
                 //fix for IE cell positioning
                 if(jQuery.browser.msie && ($(this).is('tr') || $(this).is('td'))) {
                     $(this).children('td').each(function() {
-                        $(this).css({'position':'relative', 'width' : $(this).width(), 'z-index':'9999'});
+                        $(this).css({
+                            position: 'relative',
+                            width: $(this).width(),
+                            zIndex: settings.spotlightZIndex
+                        });
                     });
-                    element.css({'position':'absolute', 'width' : $(this).width(), 'z-index':'9999'});
+                    element.css({
+                        position: 'absolute',
+                        width: $(this).width(),
+                        zIndex: settings.spotlightZIndex
+                    });
                 } else {
-                    element.css({'position':'relative', 'z-index':'9999'});
+                    element.css({
+                        position: 'relative',
+                        zIndex: settings.spotlightZIndex
+                    });
                 }
             } else {
-                element.css('z-index', '9999');
+                element.css({ zIndex: settings.spotlightZIndex });
             }
 
             // Fade in the spotlight
