@@ -19,11 +19,13 @@
                     exitEvent: 'click',
                     onShow: function(){},
                     onHide: function(){},
-                    spotlightZIndex: 9999
+                    spotlightZIndex: 9999,
+                    spotlightElementClass: 'spotlight-background'
             }, options);
 
             // Add the overlay div
             var spotlight = $('<div></div>');
+            spotlight.addClass(settings.spotlightElementClass);
             $('body').append(spotlight);
 
             // Get our elements
