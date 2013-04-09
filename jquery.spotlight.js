@@ -6,115 +6,164 @@
  * Licensed under the GPL license (http://www.gnu.org/licenses/gpl-3.0.html)
  * Version 1.1 (2011)
  */
-(function($) {
+(function ($) {
+    var currentOverlay;
 
-	$.fn.spotlight = function(options) {
-            // Default settings
-            settings = $.extend({}, {
-                    opacity: .5,
-                    speed: 400,
-                    color: '#333',
-                    animate: true,
-                    easing: '',
-                    exitEvent: 'click',
-                    onShow: function(){},
-                    onHide: function(){},
-                    spotlightZIndex: 9999,
-                    spotlightElementClass: 'spotlight-background'
-            }, options);
+    $.fn.spotlight = function (options) {
+        var method = 'create';
 
-            // Add the overlay div
-            var spotlight = $('<div></div>');
-            spotlight.addClass(settings.spotlightElementClass);
-            $('body').append(spotlight);
+        // Default settings
+        settings = $.extend({}, {
+            opacity: .5,
+            speed: 400,
+            color: '#333',
+            animate: true,
+            easing: '',
+            exitEvent: 'click',
+            onShow: function () {
+                // do nothing
+            },
+            onHide: function () {
+                // do nothing
+            },
+            spotlightZIndex: 9999,
+            spotlightElementClass: 'spotlight-background',
+            parentSelector: 'html',
+            paddingX: 0,
+            paddingY: 0
+        }, options);
 
-            // Get our elements
-            var element = $(this);
-
-            // Set the CSS styles
-            var cssConfig = {
-                position: 'fixed', 
-                backgroundColor: settings.color, 
-                top: 0, 
-                left: 0, 
-                height: '100%',
-                width: '100%',
-                zIndex: settings.spotlightZIndex - 1
-            };
-
-            if (jQuery.support.opacity) {
-                cssConfig['opacity'] = '0';
-            } else {
-                cssConfig['filter'] = 'alpha(opacity=0)';
+        function closeOverlay () {
+            if (!currentOverlay) {
+                return;
             }
 
-            spotlight.css(cssConfig);
+            if (settings.animate) {
+                currentOverlay.animate({opacity: 0}, settings.speed, settings.easing, function () {
+                    currentOverlay.remove();
+                    currentOverlay = null;
 
-            // Set element CSS
-            var currentPos = element.css('position');
-            if(currentPos == 'static'){
-                //fix for IE cell positioning
-                if(jQuery.browser.msie && ($(this).is('tr') || $(this).is('td'))) {
-                    $(this).children('td').each(function() {
-                        $(this).css({
-                            position: 'relative',
-                            width: $(this).width(),
-                            zIndex: settings.spotlightZIndex
-                        });
-                    });
-                    element.css({
-                        position: 'absolute',
-                        width: $(this).width(),
-                        zIndex: settings.spotlightZIndex
-                    });
-                } else {
-                    element.css({
-                        position: 'relative',
-                        zIndex: settings.spotlightZIndex
-                    });
-                }
-            } else {
-                element.css({ zIndex: settings.spotlightZIndex });
-            }
-
-            // Fade in the spotlight
-            if(settings.animate && jQuery.support.opacity){
-                spotlight.animate({opacity: settings.opacity}, settings.speed, settings.easing, function(){
-                    // Trigger the onShow callback
-                    settings.onShow.call(this);
+                    // Trigger the onHide callback
+                    settings.onHide.call(this);
                 });
             } else {
-                if(jQuery.support.opacity) {
-                    spotlight.css('opacity', settings.opacity);
-                } else {
-                    spotlight.css('filter', 'alpha(opacity=' + settings.opacity * 100 + ')');
-                }
+                currentOverlay.remove();
+                currentOverlay = null;
+
+                // Trigger the onHide callback
+                settings.onHide.call(this);
+            }
+        }
+
+        if (typeof options === 'string') {
+            method = options;
+            options = arguments[1];
+        }
+
+        switch (method) {
+            case 'close':
+            case 'destroy':
+                closeOverlay();
+                return;
+        }
+
+        var elements = $(this),
+            overlay,
+            parent,
+            context;
+
+        /**
+         * Colour in the overlay and clear all element masks
+         */
+        function fillOverlay () {
+            context.fillStyle = settings.color;
+            context.fillRect(0, 0, parent.innerWidth(), parent.innerHeight());
+
+            // loop through elements and clear their position
+            elements.each(function (i, e) {
+                e = $(e);
+
+                var currentPos = e.position();
+                context.clearRect(
+                    currentPos.left - settings.paddingX,
+                    currentPos.top - settings.paddingY,
+                    e.outerWidth() + (settings.paddingX * 2),
+                    e.outerHeight() + (settings.paddingY * 2)
+                );
+            });
+        }
+
+        /**
+         * Handle resizing the window
+         *
+         * @param e
+         */
+        function handleResize (e) {
+            overlay.attr('width', parent.innerWidth());
+            overlay.attr('height', parent.innerHeight());
+
+            if (typeof context !== 'undefined') {
+                fillOverlay();
+            }
+        }
+
+        closeOverlay();
+
+        // Add the overlay element
+        overlay = $('<canvas></canvas>');
+        overlay.addClass(settings.spotlightElementClass);
+
+        currentOverlay = overlay;
+
+        parent = $(settings.parentSelector);
+        parent.append(overlay);
+
+        // Get our elements
+        var element = $(this);
+
+        // Set the CSS styles
+        var cssConfig = {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: '100%',
+            zIndex: settings.spotlightZIndex
+        };
+
+        if (settings.parentSelector == 'html') {
+            parent.css('height', '100%');
+        }
+
+        overlay.css(cssConfig);
+        handleResize();
+        $(window).resize(handleResize);
+
+        context = overlay[0].getContext('2d');
+
+        fillOverlay();
+
+        // Fade in the spotlight
+        if (settings.animate && jQuery.support.opacity) {
+            overlay.animate({opacity: settings.opacity}, settings.speed, settings.easing, function () {
                 // Trigger the onShow callback
                 settings.onShow.call(this);
-            }
-
-            // Set up click to close
-            $(document).on(settings.exitEvent, spotlight, function(){
-                    if(settings.animate){
-                        spotlight.animate({opacity: 0}, settings.speed, settings.easing, function(){
-                                if(currentPos == 'static') element.css('position', 'static');
-                                element.css('z-index', '1');
-                                $(this).remove();
-                                // Trigger the onHide callback
-                                settings.onHide.call(this);
-                        });
-                    } else {
-                        spotlight.css('opacity', '0');
-                        if(currentPos == 'static') element.css('position', 'static');
-                        element.css('z-index', '1');
-                        $(this).remove();
-                        // Trigger the onHide callback
-                        settings.onHide.call(this);
-                    }
             });
+        } else {
+            if (jQuery.support.opacity) {
+                overlay.css('opacity', settings.opacity);
+            } else {
+                overlay.css('filter', 'alpha(opacity=' + settings.opacity * 100 + ')');
+            }
+            // Trigger the onShow callback
+            settings.onShow.call(this);
+        }
 
-            // Returns the jQuery object to allow for chainability.  
-            return this;
-	};
+        // Set up click to close
+        $(document).on(settings.exitEvent, overlay, closeOverlay);
+
+        // Returns the jQuery object to allow for chainability.
+        return this;
+    };
 
 })(jQuery);
