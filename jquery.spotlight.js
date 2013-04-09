@@ -94,7 +94,7 @@
             }
 
             // Set up click to close
-            spotlight.live(settings.exitEvent, function(){
+            $(document).on(settings.exitEvent, spotlight, function(){
                     if(settings.animate){
                         spotlight.animate({opacity: 0}, settings.speed, settings.easing, function(){
                                 if(currentPos == 'static') element.css('position', 'static');
