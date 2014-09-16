@@ -4,7 +4,7 @@
  * Project Page: http://github.com/
  * Original Plugin code by Gilbert Pellegrom (2009)
  * Licensed under the GPL license (http://www.gnu.org/licenses/gpl-3.0.html)
- * Version 1.1 (2011)
+ * Version 2.0.1 (2014)
  */
 (function ($) {
     var currentOverlay;
