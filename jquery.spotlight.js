@@ -144,17 +144,14 @@
         fillOverlay();
 
         // Fade in the spotlight
-        if (settings.animate && jQuery.support.opacity) {
+        if (settings.animate) {
             overlay.animate({opacity: settings.opacity}, settings.speed, settings.easing, function () {
                 // Trigger the onShow callback
                 settings.onShow.call(this);
             });
         } else {
-            if (jQuery.support.opacity) {
-                overlay.css('opacity', settings.opacity);
-            } else {
-                overlay.css('filter', 'alpha(opacity=' + settings.opacity * 100 + ')');
-            }
+            overlay.css('opacity', settings.opacity);
+
             // Trigger the onShow callback
             settings.onShow.call(this);
         }
