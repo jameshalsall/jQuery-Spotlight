@@ -6,7 +6,16 @@
  * Licensed under the GPL license (http://www.gnu.org/licenses/gpl-3.0.html)
  * Version 2.0.1 (2014)
  */
-(function ($) {
+ 
+ (function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
     var currentOverlay;
 
     $.fn.spotlight = function (options) {
@@ -163,4 +172,4 @@
         return this;
     };
 
-})(jQuery);
+}));
